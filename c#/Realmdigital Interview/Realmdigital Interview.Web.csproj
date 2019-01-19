@@ -172,6 +172,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ApiResponsePrice.cs" />
+    <Compile Include="Helpers\ApiResponseProduct.cs" />
+    <Compile Include="Helpers\Base.cs" />
+    <Compile Include="Helpers\IProductListResponse.cs" />
+    <Compile Include="Helpers\ISingleProductResponse.cs" />
+    <Compile Include="Helpers\ProductListDecoder.cs" />
+    <Compile Include="Helpers\SingleProductDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

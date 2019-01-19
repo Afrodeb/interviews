@@ -6,99 +6,36 @@ using System.Net;
 using System.Web;
 using System.Web.Http;
 using Newtonsoft.Json;
+using Realmdigital_Interview.Helpers;
+using Microsoft.Practices.Unity;
 
 namespace Realmdigital_Interview.Controllers
 {
-    public class ProductController
+    [Route("products")]
+    public class ProductController : Base
     {
+        private ISingleProductResponse singleProductResponse;
+        private IProductListResponse productListResponse;
+        public ProductController(ISingleProductResponse singleProductDecoder, IProductListResponse productListDecoder)
+        {
+            singleProductResponse=singleProductDecoder;
+            productListResponse=productListDecoder;
+        }
 
         [Route("product")]
-        public object GetProductById(string productId)
+        public object GetProductById(int productId)
         {
-            string response = "";
-
-            using (var client = new WebClient())
-            {
-                client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                response = client.UploadString("http://192.168.0.241/eanlist?type=Web", "POST", "{ \"id\": \"" + productId + "\" }");
-            }
-            var reponseObject = JsonConvert.DeserializeObject<List<ApiResponseProduct>>(response);
-
-            var result = new List<object>();
-            for (int i = 0; i < reponseObject.Count; i++)
-            {
-                var prices = new List<object>();
-                for (int j = 0; j < reponseObject[i].PriceRecords.Count; j++)
-                {
-                    if (reponseObject[i].PriceRecords[j].CurrencyCode == "ZAR")
-                    {
-                        prices.Add(new
-                        {
-                            Price = reponseObject[i].PriceRecords[j].SellingPrice,
-                            Currency = reponseObject[i].PriceRecords[j].CurrencyCode
-                        });
-                    }
-                }
-                result.Add(new
-                {
-                    Id = reponseObject[i].BarCode,
-                    Name = reponseObject[i].ItemName,
-                    Prices = prices
-                });
-            }
-            return result.Count > 0 ? result[0] : null;
+            //SingleProductDecoder response = new SingleProductDecoder();
+            return singleProductResponse.decodeResponse((List<ApiResponseProduct>)Base.getResponse(productId));                        
         }
+       
 
         [Route("product/search")]
         public List<object> GetProductsByName(string productName)
         {
-            string response = "";
-
-            using (var client = new WebClient())
-            {
-                client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                response = client.UploadString("http://192.168.0.241/eanlist?type=Web", "POST", "{ \"names\": \"" + productName + "\" }");
-            }
-            var reponseObject = JsonConvert.DeserializeObject<List<ApiResponseProduct>>(response);
-
-            var result = new List<object>();
-            for (int i = 0; i < reponseObject.Count; i++)
-            {
-                var prices = new List<object>();
-                for (int j = 0; j < reponseObject[i].PriceRecords.Count; j++)
-                {
-                    if (reponseObject[i].PriceRecords[j].CurrencyCode == "ZAR")
-                    {
-                        prices.Add(new
-                        {
-                            Price = reponseObject[i].PriceRecords[j].SellingPrice,
-                            Currency = reponseObject[i].PriceRecords[j].CurrencyCode
-                        });
-                    }
-                }
-                result.Add(new
-                {
-                    Id = reponseObject[i].BarCode,
-                    Name = reponseObject[i].ItemName,
-                    Prices = prices
-                });
-            }
-            return result;
+            //ProductListDecoder response = new ProductListDecoder();
+            return productListResponse.decodeResponse((List<ApiResponseProduct>)Base.getResponse(productName));            
         }
     }
-
-
-
-    class ApiResponseProduct
-    {
-        public string BarCode { get; set; }
-        public string ItemName { get; set; }
-        public List<ApiResponsePrice> PriceRecords { get; set; }
-    }
-
-    class ApiResponsePrice
-    {
-        public string SellingPrice { get; set; }
-        public string CurrencyCode { get; set; }
-    }
+     
 }
